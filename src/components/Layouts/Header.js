@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import Logo from "../../assets/logo.png";
 import { useEffect, useState } from "react";
+import { Search } from "../Sections/Search"
 
 export const Header = () => {
   const [darkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem("darkMode")) || false);
+  const [searchSection, setSearchSection] =useState(false);
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
@@ -24,7 +26,7 @@ export const Header = () => {
               </Link>
               <div className="flex items-center relative">
                   <span onClick={() => setDarkMode(!darkMode)} className="cursor-pointer text-xl text-gray-700 dark:text-white mr-5 bi bi-gear-wide-connected"></span>
-                  <span className="cursor-pointer text-xl text-gray-700 dark:text-white mr-5 bi bi-search"></span>
+                  <span onClick={() => setSearchSection(!searchSection)} className="cursor-pointer text-xl text-gray-700 dark:text-white mr-5 bi bi-search"></span>
                   <Link to="/cart" className="text-gray-700 dark:text-white mr-5">
                     {/* 
                       Cart icon with a small rounded red badge showing the cart item count.
@@ -38,6 +40,7 @@ export const Header = () => {
               </div>
           </div>
       </nav>
+      {searchSection && <Search setSearchSection={setSearchSection}/>}
     </header>
   )
 }

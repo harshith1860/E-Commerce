@@ -1,19 +1,46 @@
 import { useState, useEffect } from "react";
 import { ProductCard } from "../../components";
 import { FilterBar } from "./components/FilterBar";
+// import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useTitle } from "../../hooks/useTitle";
 
 export const ProductsList = () => {
+  useTitle("Explore eBooks Collection");
+
   const [show, setShow] = useState(false);
-    const [products, setProducts] = useState([]);
-  
-    useEffect(() => {
-      async function fetchProducts(){
-        const response = await fetch("http://localhost:8000/products");
-        const data = await response.json();
-        setProducts(data);
-      }
-      fetchProducts();
-    },[])
+  const [products, setProducts] = useState([]);
+  // There are two ways to get query parameters from the URL:
+
+  // 1️⃣ Using useLocation (manual parsing):
+  // const search = useLocation().search;
+  // const searchTerm = new URLSearchParams(search).get("q");
+
+  // 2️⃣ Using useSearchParams (recommended in React Router v6):
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q");
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const response = await fetch("http://localhost:8000/products");
+      const data = await response.json();
+      // Performing FRONTEND search because backend JSON Server search filters
+      // (q / _like) are not working in the current setup.
+      // If backend search is supported, the preferred approach is to fetch
+      // filtered data directly from the API, for example:
+      // http://localhost:8000/products?name_like=${searchTerm || ""}
+      const filteredProducts = searchTerm
+        ? data.filter(product =>
+            product.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : data; // if searchTerm is empty, return all products
+
+      setProducts(filteredProducts);
+    }
+
+    fetchProducts();
+  }, [searchTerm]);
+
 
   return (
     <main>
