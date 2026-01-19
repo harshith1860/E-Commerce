@@ -4,12 +4,24 @@ import { FilterBar } from "./components/FilterBar";
 // import { useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { useTitle } from "../../hooks/useTitle";
+import { useFilter } from "../../context";
 
 export const ProductsList = () => {
   useTitle("Explore eBooks Collection");
 
   const [show, setShow] = useState(false);
-  const [products, setProducts] = useState([]);
+
+  // Instead of managing products locally using useState,
+  // we are using useContext along with useReducer
+  // to handle the initial product fetch and apply filters globally.
+
+  // const [products, setProducts] = useState([]);
+
+  // Using useContext and useReducer to access the
+  // initial product list and the filtered product list.
+  const { products, initialProductList } = useFilter();
+
+
   // There are two ways to get query parameters from the URL:
 
   // 1️⃣ Using useLocation (manual parsing):
@@ -35,18 +47,17 @@ export const ProductsList = () => {
           )
         : data; // if searchTerm is empty, return all products
 
-      setProducts(filteredProducts);
+      initialProductList(filteredProducts);
     }
 
     fetchProducts();
   }, [searchTerm]);
 
-
   return (
     <main>
         <section className="my-5">
           <div className="my-5 flex justify-between">
-            <span className="text-2xl font-semibold dark:text-slate-100 mb-5">All eBooks ({products.length})</span>
+            <span className="text-2xl font-semibold dark:text-slate-100 mb-5">All eBooks ({products.length || 0})</span>
             <span>
               <button onClick={() => setShow(!show)} id="dropdownMenuIconButton" data-dropdown-toggle="dropdownDots" className="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 dark:text-white dark:bg-gray-600 dark:hover:bg-gray-700" type="button"> 
                 <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
