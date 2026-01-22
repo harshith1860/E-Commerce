@@ -11,6 +11,9 @@ server.db = router.db;
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
+// ✅ load routes.json for role-based access
+server.use(auth.rewriter(require("./data/routes.json")));
+
 // ✅ auth MUST come after db binding
 server.use(auth);
 

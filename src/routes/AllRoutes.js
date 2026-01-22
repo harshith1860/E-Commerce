@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { CartPage, HomePage, Login, ProductsList, Register } from "../pages";
 import { ProductDetail } from "../pages";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 export const AllRoutes = () => {
   return (
@@ -12,8 +13,14 @@ export const AllRoutes = () => {
         
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
-
-        <Route path="/cart" element={<CartPage/>} />
+        {/* Protect the CartPage route:
+          - If the user is logged in, allow access to /cart
+          - If not logged in, redirect the user to /login */}
+        <Route path="/cart" element={
+                                      <ProtectedRoute>
+                                          <CartPage/>
+                                      </ProtectedRoute>
+                                    } />
     </Routes>
     </>
   )
