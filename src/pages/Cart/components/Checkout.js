@@ -46,7 +46,7 @@ export const Checkout = ({setCheckout}) => {
         try{
             const order = {
                 cartList: cartList,
-                amoutn_paid: total,
+                amount_paid: total,
                 quantity: cartList.length,
                 user: {
                     name: user.name,
