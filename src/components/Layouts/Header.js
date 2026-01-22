@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { Search } from "../Sections/Search"
 import { DropdownLoggedOut } from "../Elements/DropdownLoggedOut";
 import { DropdownLoggedIn } from "../Elements/DropdownLoggedIn";
+import { useCart } from "../../context";
+
 
 export const Header = () => {
   const [darkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem("darkMode")) || false);
   const [searchSection, setSearchSection] =useState(false);
   const [dropdown, setDropdown]=useState(false);
+  const {cartList} = useCart();
   const token = JSON.parse(sessionStorage.getItem("token"));
    const location = useLocation(); // detect route change
 
@@ -45,7 +48,7 @@ export const Header = () => {
                       The parent span is the cart icon, and the child span is the red badge with the count.
                     */}
                     <span className="text-2xl bi bi-cart-fill relative">
-                      <span className="text-white text-sm absolute -top-1 left-2.5 bg-rose-500 px-1 rounded-full ">0</span>
+                      <span className="text-white text-sm absolute -top-1 left-2.5 bg-rose-500 px-1 rounded-full ">{cartList.length}</span>
                     </span>                    
                   </Link>
                   <span onClick={() => setDropdown(!dropdown)} className="bi bi-person-circle cursor-pointer text-2xl text-gray-700 dark:text-white"></span>
