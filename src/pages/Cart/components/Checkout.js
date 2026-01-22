@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../../../context";
+import { useNavigate } from "react-router-dom";
 
 export const Checkout = ({setCheckout}) => {
-    const { total } = useCart();
+    const navigate = useNavigate();
+    const { cartList, total, clearCart } = useCart();
     // State to store the logged-in user's details
     const [user, setUser] = useState({});
 
@@ -38,6 +40,42 @@ export const Checkout = ({setCheckout}) => {
         getUser();
     }, []);
 
+    async function handleOrderSubmit(event) {
+        event.preventDefault();
+
+        try{
+            const order = {
+                cartList: cartList,
+                amoutn_paid: total,
+                quantity: cartList.length,
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    id: user.id
+                }
+            }
+            const response = await fetch(
+            `http://localhost:8000/660/orders`, // /660 ensures only the owner can create an order
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    // Bearer token is required for protected (guarded) routes
+                    Authorization: `Bearer ${JSON.parse(sessionStorage.getItem("token"))}`
+                },
+                body: JSON.stringify(order)
+                
+            }
+            );
+            const data = await response.json();
+            clearCart();
+            navigate("/order-summary",{state: {data: data, status: true}});
+        }
+        catch(error){
+           navigate("/order-summary",{state: {status: true}}); 
+        }
+    }
+
   return (
     <section>
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50"></div>
@@ -54,34 +92,34 @@ export const Checkout = ({setCheckout}) => {
                     <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
                     <i className="bi bi-credit-card mr-2"></i>CARD PAYMENT
                     </h3>
-                    <form className="space-y-6" >
-                    <div>
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Name:</label>
-                        <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value={user.name || ""} disabled required="" />
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email:</label>
-                        <input type="text" name="email" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value={user.email || ""} disabled required="" />
-                    </div>
-                    <div>
-                        <label htmlFor="card" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Card Number:</label>
-                        <input type="number" name="card" id="card" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="4215625462597845" disabled required="" />
-                    </div>
-                    <div className="">
-                        <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Expiry Date:</label>
-                        <input type="number" name="month" id="month" className="inline-block w-20 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="03" disabled required="" />
-                        <input type="number" name="year" id="year" className="inline-block w-20 ml-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="27" disabled required="" />
-                    </div>
-                    <div>
-                        <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" >Security Code:</label>
-                        <input type="number" name="code" id="code" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="523" disabled required="" />
-                    </div>
-                    <p className="mb-4 text-2xl font-semibold text-lime-500 text-center">
-                        ${total}
-                    </p>
-                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700" >
-                        <i className="mr-2 bi bi-lock-fill"></i>PAY NOW
-                    </button>
+                    <form onSubmit={handleOrderSubmit} className="space-y-6" >
+                        <div>
+                            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Name:</label>
+                            <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value={user.name || ""} disabled required="" />
+                        </div>
+                        <div>
+                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email:</label>
+                            <input type="text" name="email" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value={user.email || ""} disabled required="" />
+                        </div>
+                        <div>
+                            <label htmlFor="card" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Card Number:</label>
+                            <input type="number" name="card" id="card" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="4215625462597845" disabled required="" />
+                        </div>
+                        <div className="">
+                            <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Expiry Date:</label>
+                            <input type="number" name="month" id="month" className="inline-block w-20 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="03" disabled required="" />
+                            <input type="number" name="year" id="year" className="inline-block w-20 ml-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="27" disabled required="" />
+                        </div>
+                        <div>
+                            <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300" >Security Code:</label>
+                            <input type="number" name="code" id="code" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:value-gray-400 dark:text-white" value="523" disabled required="" />
+                        </div>
+                        <p className="mb-4 text-2xl font-semibold text-lime-500 text-center">
+                            ${total}
+                        </p>
+                        <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700" >
+                            <i className="mr-2 bi bi-lock-fill"></i>PAY NOW
+                        </button>
                     </form>
                 </div>
                 </div>
