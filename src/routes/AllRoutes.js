@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { CartPage, HomePage, Login, ProductsList, Register, ProductDetail, OrderPage, DashboardPage } from "../pages";
+import { CartPage, HomePage, Login, ProductsList, Register, ProductDetail, OrderPage, DashboardPage, PageNotFound } from "../pages";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 export const AllRoutes = () => {
@@ -30,6 +30,8 @@ export const AllRoutes = () => {
                                           <DashboardPage/>
                                       </ProtectedRoute>
                                     } />
+
+        <Route path="*" element={<PageNotFound/>}/>
     </Routes>
     </>
   )
